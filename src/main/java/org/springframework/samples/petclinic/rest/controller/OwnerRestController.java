@@ -39,6 +39,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 
 /**
  * @author Vitaliy Fedoriv
@@ -48,6 +49,9 @@ import java.util.List;
 @CrossOrigin(exposedHeaders = "errors, content-type")
 @RequestMapping("/api")
 public class OwnerRestController implements OwnersApi {
+
+    private Integer lag = 0;
+    private Random random = new Random();
 
     private final ClinicService clinicService;
 
@@ -135,6 +139,14 @@ public class OwnerRestController implements OwnersApi {
     @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
     @Override
     public ResponseEntity<PetDto> addPetToOwner(Integer ownerId, PetFieldsDto petFieldsDto) {
+        lag = random.nextInt(100);
+        if (lag > 98) {
+          try {
+            Thread.sleep(lag);
+          } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+        }
         HttpHeaders headers = new HttpHeaders();
         Pet pet = petMapper.toPet(petFieldsDto);
         Owner owner = new Owner();
