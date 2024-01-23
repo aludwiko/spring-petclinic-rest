@@ -49,6 +49,8 @@ import java.util.List;
 @RequestMapping("/api")
 public class OwnerRestController implements OwnersApi {
 
+    private Integer lag = 0;
+
     private final ClinicService clinicService;
 
     private final OwnerMapper ownerMapper;
@@ -135,6 +137,15 @@ public class OwnerRestController implements OwnersApi {
     @PreAuthorize("hasRole(@roles.OWNER_ADMIN)")
     @Override
     public ResponseEntity<PetDto> addPetToOwner(Integer ownerId, PetFieldsDto petFieldsDto) {
+        if (petFieldsDto.getType().getName().equals("dog")) {
+            System.out.println("Lag: " + lag);
+            try {
+                Thread.sleep(lag);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            lag = lag + 10;
+        }
         HttpHeaders headers = new HttpHeaders();
         Pet pet = petMapper.toPet(petFieldsDto);
         Owner owner = new Owner();
